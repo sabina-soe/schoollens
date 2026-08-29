@@ -1,0 +1,67 @@
+{
+  "_instructions": "Fill this in as you research each school. Keep is_synthetic:true and say so in the UI for any school/claim you invent to fill a gap — never present made-up data as real. Delete this _instructions key before importing (the loader ignores it, but keep it clean).",
+
+  "sources": [
+    { "name": "School's own website",        "type": "school",      "base_reliability": 0.75, "url": "" },
+    { "name": "School's Facebook page",      "type": "school",      "base_reliability": 0.7,  "url": "" },
+    { "name": "doris.school",                "type": "independent", "base_reliability": 0.65, "url": "https://www.doris.school" },
+    { "name": "international-schools-database.com", "type": "independent", "base_reliability": 0.5, "url": "https://www.international-schools-database.com" },
+    { "name": "Edge.com.mm",                 "type": "independent", "base_reliability": 0.35, "url": "https://www.edge.com.mm", "notes": "Paid local business directory — self-reported listings, treat as low-confidence unless corroborated" },
+    { "name": "Parent report (demo)",        "type": "community",   "base_reliability": 0.4,  "notes": "Placeholder for the one or two community claims you add by hand for the demo" }
+  ],
+
+  "schools": [
+    {
+      "name": "EXAMPLE: Myanmar International School Yangon",
+      "aliases": "MISY, Myanmar Int'l School",
+      "city": "Yangon",
+      "curriculum_hint": "British / Cambridge",
+      "is_synthetic": false,
+      "claims": [
+        {
+          "field_name": "student_teacher_ratio",
+          "value_text": "10:1",
+          "value_numeric": 10,
+          "source_name": "School's own website",
+          "status": "school-provided",
+          "source_date": "2026-08-01",
+          "evidence_note": "Stated on school's admissions page"
+        },
+        {
+          "field_name": "student_teacher_ratio",
+          "value_text": "12:1",
+          "value_numeric": 12,
+          "source_name": "international-schools-database.com",
+          "status": "independent",
+          "source_date": "2026-06-15",
+          "evidence_note": "Listed class-size/ratio field on directory profile — THIS IS YOUR DELIBERATE CONFLICT EXAMPLE"
+        },
+        {
+          "field_name": "curriculum",
+          "value_text": "Cambridge IGCSE and A-Levels",
+          "source_name": "doris.school",
+          "status": "independent",
+          "source_date": "2026-07-01",
+          "evidence_note": "Matches school's own stated curriculum — corroborating evidence, no conflict"
+        },
+        {
+          "field_name": "curriculum",
+          "value_text": "Cambridge IGCSE and A-Levels",
+          "source_name": "School's own website",
+          "status": "school-provided",
+          "source_date": "2026-08-01",
+          "evidence_note": "Confirms the same claim from a second, independent-of-directory source"
+        }
+      ]
+    },
+    {
+      "name": "EXAMPLE: Yangon Academy International School",
+      "aliases": "YAIS",
+      "city": "Yangon",
+      "curriculum_hint": "American",
+      "is_synthetic": false,
+      "claims": []
+      ,"_note": "No tuition_fee claim on purpose: when a school genuinely doesn't publish fees anywhere, don't add a claim saying so — just add NO claim for that field. Absence of claims is how the engine renders 🔴 Unknown. This is your live 'insufficient evidence' demo school."
+    }
+  ]
+}
