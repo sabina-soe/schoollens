@@ -1,0 +1,43 @@
+{
+  "source": "https://www.doris.school/international-schools/myanmar",
+  "source_name": "doris.school",
+  "source_date": "2026-08-14",
+  "schools": [
+    {
+      "name": "ILBC International School Mandalay",
+      "aliases": "ILBC, ILBC Mandalay",
+      "city": "Mandalay",
+      "curriculum": [
+        "Bespoke Curriculum",
+        "British Curriculum",
+        "Cambridge (Primary)",
+        "Cambridge (Secondary)",
+        "Cambridge IGCSE"
+      ],
+      "website": "https://www.doris.school/schools/myanmar/ilbc-international-school-mandalay",
+      "tuition_fee": {
+        "value_text": "MMK 430,000 – 999,000",
+        "value_numeric": 430000,
+        "evidence_note": "Fee range listed on the doris.school profile for ILBC International School Mandalay (https://www.doris.school/schools/myanmar/ilbc-international-school-mandalay). Doris also publishes a monthly TIL schedule by year group on the fees page.",
+        "source_date": "2026-08-14"
+      }
+    },
+    {
+      "name": "ILBC International School Taunggyi",
+      "aliases": "ILBC, ILBC Taunggyi",
+      "city": "Taunggyi",
+      "curriculum": [
+        "Cambridge IGCSE",
+        "Cambridge International AS Levels"
+      ],
+      "ages": "Ages 3 to 18",
+      "website": "https://www.doris.school/schools/myanmar/ilbc-international-school-taunggyi",
+      "tuition_fee": {
+        "value_text": "MMK 474,000 – 1,075,000",
+        "value_numeric": 474000,
+        "evidence_note": "Fee range listed on the doris.school profile for ILBC International School Taunggyi (https://www.doris.school/schools/myanmar/ilbc-international-school-taunggyi). Doris also publishes monthly TIL amounts by year group for the Taunggyi / Lashio / Myeik group.",
+        "source_date": "2026-08-14"
+      }
+    }
+  ]
+}

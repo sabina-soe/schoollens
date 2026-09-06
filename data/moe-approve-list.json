@@ -1,0 +1,122 @@
+{
+  "title": "MoE approved list of private schools teaching the international curriculum",
+  "source_file": "MOE_Approve_List.xlsx",
+  "source_date": "2026-09-06",
+  "note": "Recovered official rows from MOE_Approve_List.xlsx. Run npm run moe:parse next to the spreadsheet to replace this with the full 252-campus list.",
+  "listings": [
+    {
+      "seq": "1",
+      "name": "ILBC International School",
+      "address": "JMK ၁၀/၂၅၁၊ ဂျန်မိုင်ကောင်၊မြို့သစ်ကြီးရပ်ကွက်၊ မြစ်ကြီးနားမြို့၊ ကချင်ပြည်နယ်",
+      "period": "၂၀၂၄-၂၀၂၅ မှ၂၀၂၈-၂၀၂၉"
+    },
+    {
+      "seq": "2",
+      "name": "Higher Champs International School (HCIS)",
+      "address": "အမှတ်(၆)၊ စိန်စီမြလမ်း၊ ပြည်ထောင်စု၊ ဘားအံမြို့၊ ကရင်ပြည်နယ်",
+      "period": "၂၀၂၄-၂၀၂၅ မှ၂၀၂၈-၂၀၂၉"
+    },
+    {
+      "seq": "3",
+      "name": "GLOBAL Sagaing",
+      "address": "အမှတ်(ခ/၃၂)၊ ခွာညိုလမ်း၊ ပါရမီရပ်ကွက်၊ စစ်ကိုင်းမြို့၊ စစ်ကိုင်းတိုင်းဒေသကြီး",
+      "period": "၂၀၂၅-၂၀၂၆ မှ၂၀၂၉-၂၀၃၀"
+    },
+    {
+      "seq": "4",
+      "name": "Higher Champs International School (HCIS)",
+      "address": "အမှတ်(၆၈၃)၊ ပြည်ထောင်စုလမ်းနှင့် ဗိုလ်ချုပ်လမ်းထောင့်၊ နတ်လူထိပ်ပန်ရပ်ကွက်၊ မုံရွာမြို့နယ်၊ စစ်ကိုင်းတိုင်းဒေသကြီး",
+      "period": "၂၀၂၄-၂၀၂၅ မှ ၂၀၂၅-၂၀၂၆"
+    },
+    {
+      "seq": "5",
+      "name": "ILBSM",
+      "address": "အမှတ်(၁၄၆)၊ သရဖီလမ်း၊ နန္ဒန်ရပ်ကွက်၊ မုံရွာမြို့နယ်၊ စစ်ကိုင်းတိုင်းဒေသကြီး",
+      "period": "၂၀၂၄-၂၀၂၅ မှ ၂၀၂၅-၂၀၂၆"
+    },
+    {
+      "seq": "6",
+      "name": "Stone Wall",
+      "address": "အမှတ်(၇၀)2A-9၊ ကမ်းနားလမ်း၊ သင်္ဘောဆိပ် ရပ်၊ ထားဝယ်မြို့၊ တနင်္သာရီတိုင်းဒေသကြီး",
+      "period": "၂၀၂၅-၂၀၂၆ မှ၂၀၂၉-၂၀၃၀"
+    },
+    {
+      "seq": "7",
+      "name": "ILBC",
+      "address": "အမှတ်(၁၁) မဟာစည်သာသနာ့ရိပ်သာလမ်း၊ လမင်းရပ်၊ ရေပုန်းနယ်မြေ၊ မြိတ်မြို့၊ တနင်္သာရီတိုင်းဒေသကြီး",
+      "period": "၂၀၂၅-၂၀၂၆ မှ၂၀၂၉-၂၀၃၀"
+    },
+    {
+      "seq": "8",
+      "name": "Bright Stars International School",
+      "address": "အမှတ်(၂၁၂)၊ ဥဿာမြို့သစ်၊ (၄)ရပ်ကွက်၊ မဟာဗန္ဓုလလမ်း၊ ပဲခူးမြို့၊ ပဲခူးတိုင်းဒေသကြီး",
+      "period": "2024-2025 မှ 2028-2029"
+    },
+    {
+      "seq": "28",
+      "name": "IWAS International School",
+      "address": "၁၀၂ (A) လမ်း၊ ၆၆ (B) နှင့် ၆၇ လမ်းကြား ချမ်းမြသာစည်မြို့နယ်၊ မန္တလေးတိုင်းဒေသကြီး",
+      "period": "၂၀၂၄-၂၀၂၅ မှ၂၀၂၈-၂၀၂၉"
+    },
+    {
+      "seq": "29",
+      "name": "Myanmar International School Yangon (MISY)",
+      "address": "၄၈လမ်း၊ ၁၀၉လမ်းနှင့် ၁၁၀ လမ်းကြား၊ ထွန်တုံး ရပ်ကွက်၊ ချမ်းမြသာစည်မြို့နယ်၊ မန္တလေးတိုင်းဒေသကြီး",
+      "period": "၂၀၂၄-၂၀၂၅ မှ၂၀၂၈-၂၀၂၉"
+    },
+    {
+      "seq": "30",
+      "name": "Pride ISM Pride International School Myanmar",
+      "address": "မ(၂၃)၊ ၆၇လမ်း၊ ၁၀၂ လမ်းနှင့် ၁၀၂(A)လမ်းကြား၊ မြို့သစ် အမှတ်(၁)ရပ်ကွက်၊ ချမ်းမြသာစည်မြို့နယ်၊ မန္တလေးတိုင်းဒေသကြီး",
+      "period": "၂၀၂၄-၂၀၂၅ မှ၂၀၂၈-၂၀၂၉"
+    },
+    {
+      "seq": "31",
+      "name": "Science and Tech Internationl Company Limited (STI School)",
+      "address": "65(A)လမ်းနှင့် 65(B)လမ်းကြား၊ 3/F (မ - ၂၃ ) ၆၅ ဘီလမ်း၊ ၁၀၁လမ်းနှင့် ၁၀၃လမ်းကြား၊ မြို့သစ်(၁)ရပ်ကွက်၊ ချမ်းမြသာစည်မြို့နယ်၊ မန္တလေးတိုင်းဒေသကြီး",
+      "period": "၂၀၂၄-၂၀၂၅ မှ၂၀၂၈-၂၀၂၉"
+    },
+    {
+      "seq": "32",
+      "name": "SUNFLOWER MYANMAR International School",
+      "address": "၆၆ လမ်း၊ ၁၁၁လမ်းနှင့် ၁၁၂လမ်းကြား၊ ချမ်းမြသာစည်မြို့နယ်၊ မန္တလေးတိုင်းဒေသကြီး",
+      "period": "၂၀၂၄-၂၀၂၅ မှ၂၀၂၈-၂၀၂၉"
+    },
+    {
+      "seq": "113",
+      "name": "Nelson International Education Centre (NIEC)",
+      "address": "အမှတ်(၂၇)၊ ဓမ္မာရုံလမ်း၊ (၁၃)ရပ်ကွက်၊ ရန်ကင်းမြို့နယ်၊ ရန်ကုန်တိုင်းဒေသကြီး",
+      "period": "၂၀၂၄-၂၀၂၅-၂၀၂၈-၂၀၂၉"
+    },
+    {
+      "seq": "114",
+      "name": "Royal British International School",
+      "address": "အမှတ်(၁၅)၊ သုခိတာလမ်း၊ (၁၅)ရပ်ကွက်၊ ရန်ကင်းမြို့နယ်၊ ရန်ကုန်တိုင်းဒေသကြီး",
+      "period": "၂၀၂၄-၂၀၂၅-၂၀၂၈-၂၀၂၉"
+    },
+    {
+      "seq": "115",
+      "name": "Myanmar International School Yangon (MISY)",
+      "address": "အမှတ်(၂၄)၊ ဆည်မြောင်းလမ်း၊ (၁၁)ရပ်ကွက်၊ ရန်ကင်းမြို့နယ်၊ ရန်ကုန်တိုင်းဒေသကြီး",
+      "period": "၂၀၂၄-၂၀၂၅-၂၀၂၈-၂၀၂၉"
+    },
+    {
+      "seq": "116",
+      "name": "Scholastic International School Myanmar -SISM",
+      "address": "18/Bမဥ္ဇူလမ်း၊ ပါရမီ၊ ရန်ကင်းမြို့နယ်၊ ရန်ကုန်တိုင်းဒေသကြီး",
+      "period": "၂၀၂၅-၂၀၂၆-၂၀၂၉-၂၀၃၀"
+    },
+    {
+      "seq": "117",
+      "name": "International Language & Business Centre (ILBC)",
+      "address": "အမှတ်(၅၁-G/၁)၊ တော်ဝင်ပုလဲ အိမ်ရာ၊ တာမွေမြို့နယ်၊ ရန်ကုန်တိုင်းဒေသကြီး",
+      "period": "၂၀၂၄-၂၀၂၅-၂၀၂၈-၂၀၂၉"
+    },
+    {
+      "seq": "201",
+      "name": "The International School Yangon",
+      "address": "ရန်ကုန်တိုင်းဒေသကြီး",
+      "period": ""
+    }
+  ]
+}

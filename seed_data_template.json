@@ -51,6 +51,23 @@
           "status": "school-provided",
           "source_date": "2026-08-01",
           "evidence_note": "Confirms the same claim from a second, independent-of-directory source"
+        },
+        {
+          "field_name": "grades_offered",
+          "value_text": "Early Years (Nursery) through Year 13",
+          "source_name": "School's own website",
+          "status": "school-provided",
+          "source_date": "2026-08-01",
+          "evidence_note": "Stated on the school's admissions / about page"
+        },
+        {
+          "field_name": "established_year",
+          "value_text": "2009",
+          "value_numeric": 2009,
+          "source_name": "School's own website",
+          "status": "school-provided",
+          "source_date": "2026-08-01",
+          "evidence_note": "School states it was established in August 2009"
         }
       ]
     },
@@ -62,6 +79,51 @@
       "is_synthetic": false,
       "claims": []
       ,"_note": "No tuition_fee claim on purpose: when a school genuinely doesn't publish fees anywhere, don't add a claim saying so — just add NO claim for that field. Absence of claims is how the engine renders 🔴 Unknown. This is your live 'insufficient evidence' demo school."
+    },
+    {
+      "name": "The International School Yangon",
+      "aliases": "ISY",
+      "city": "Yangon",
+      "is_synthetic": false,
+      "claims": []
+    },
+    {
+      "name": "Horizon International Academy",
+      "aliases": "HIA (illustrative)",
+      "city": "Yangon",
+      "curriculum_hint": "Cambridge",
+      "is_synthetic": true,
+      "notes": "Illustrative school for grade-banded tuition — not a real campus.",
+      "claims": [
+        {
+          "field_name": "tuition_fee",
+          "grade_band": "Primary (Years 1–6)",
+          "value_text": "8,000,000 MMK / year",
+          "value_numeric": 8000000,
+          "source_name": "School's own website",
+          "status": "school-provided",
+          "source_date": "2026-08-01",
+          "evidence_note": "Semester 1: 4,000,000 MMK. Semester 2: 4,000,000 MMK. Illustrative split for the tuition table."
+        },
+        {
+          "field_name": "tuition_fee",
+          "grade_band": "Secondary (Years 7–13)",
+          "value_text": "15,000,000 MMK / year",
+          "value_numeric": 15000000,
+          "source_name": "School's own website",
+          "status": "school-provided",
+          "source_date": "2026-08-01",
+          "evidence_note": "Semester 1: 7,500,000 MMK. Semester 2: 7,500,000 MMK. Illustrative split for the tuition table."
+        },
+        {
+          "field_name": "curriculum",
+          "value_text": "Cambridge",
+          "source_name": "School's own website",
+          "status": "school-provided",
+          "source_date": "2026-08-01",
+          "evidence_note": "Illustrative curriculum hint for the demo school"
+        }
+      ]
     }
   ]
 }
