@@ -1,20 +1,72 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { SchoolCard } from "@/components/SchoolCard";
-import { scoreSchool, searchSchools } from "@/lib/catalog";
+import { SchoolCard, type SchoolCardFieldSummary } from "@/components/SchoolCard";
+import {
+  scoreSchool,
+  searchSchools,
+  type CatalogSchool,
+} from "@/lib/catalog";
 import { copy } from "@/lib/copy";
+
+type SearchHit = CatalogSchool & { fields?: SchoolCardFieldSummary[] };
 
 type SchoolSearchResultsProps = {
   initialQuery?: string;
+  initialSchools?: SearchHit[];
 };
+
+function withFields(school: SearchHit): SearchHit {
+  if (school.fields) return school;
+  return {
+    ...school,
+    fields: scoreSchool(school.id).map((row) => ({
+      fieldName: row.fieldName,
+      gradeBand: row.gradeBand,
+      tier: row.result.tier,
+    })),
+  };
+}
 
 export function SchoolSearchResults({
   initialQuery = "",
+  initialSchools = [],
 }: SchoolSearchResultsProps) {
   const params = useSearchParams();
   const query = (params.get("q") ?? initialQuery).trim();
-  const schools = query ? searchSchools(query) : [];
+  const localHits = query ? searchSchools(query).map(withFields) : [];
+  const [live, setLive] = useState<{ query: string; schools: SearchHit[] } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (!query) return;
+
+    const controller = new AbortController();
+    fetch(`/api/schools?q=${encodeURIComponent(query)}`, {
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const payload = (await response.json()) as { schools?: SearchHit[] };
+        if (payload.schools && payload.schools.length > 0) {
+          setLive({ query, schools: payload.schools.map(withFields) });
+        }
+      })
+      .catch(() => {
+        /* Keep the seed catalog. Never surface TypeError: fetch failed. */
+      });
+
+    return () => controller.abort();
+  }, [query]);
+
+  const schools =
+    live && live.query === query
+      ? live.schools
+      : initialQuery === query && initialSchools.length > 0
+        ? initialSchools.map(withFields)
+        : localHits;
 
   if (!query) {
     return (
@@ -55,11 +107,7 @@ export function SchoolSearchResults({
               city={school.city}
               curriculumHint={school.curriculumHint}
               isSynthetic={school.isSynthetic}
-              fields={scoreSchool(school.id).map((row) => ({
-                fieldName: row.fieldName,
-                gradeBand: row.gradeBand,
-                tier: row.result.tier,
-              }))}
+              fields={school.fields ?? []}
             />
           </li>
         ))}

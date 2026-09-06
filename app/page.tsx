@@ -3,7 +3,8 @@ import Link from "next/link";
 import { SchoolSearchForm } from "@/components/SchoolSearchForm";
 import { SchoolSearchResults } from "@/components/SchoolSearchResults";
 import { SiteHeader } from "@/components/SiteHeader";
-import { queryFromSearchParams } from "@/lib/catalog";
+import { queryFromSearchParams, scoreSchool } from "@/lib/catalog";
+import { searchSchoolsSafe } from "@/lib/live-search";
 import { copy } from "@/lib/copy";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,16 @@ const EXAMPLES = [
 export default async function Home({ searchParams }: PageProps<"/">) {
   const resolved = await searchParams;
   const query = queryFromSearchParams(resolved);
+  const initialSchools = query
+    ? (await searchSchoolsSafe(query)).map((school) => ({
+        ...school,
+        fields: scoreSchool(school.id).map((row) => ({
+          fieldName: row.fieldName,
+          gradeBand: row.gradeBand,
+          tier: row.result.tier,
+        })),
+      }))
+    : [];
 
   return (
     <div className="flex flex-1 flex-col">
@@ -66,7 +77,10 @@ export default async function Home({ searchParams }: PageProps<"/">) {
             <p className="text-sm text-muted-foreground">Loading results…</p>
           }
         >
-          <SchoolSearchResults initialQuery={query} />
+          <SchoolSearchResults
+            initialQuery={query}
+            initialSchools={initialSchools}
+          />
         </Suspense>
       </main>
     </div>
