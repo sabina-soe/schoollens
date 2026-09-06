@@ -3,7 +3,12 @@ import Link from "next/link";
 import { SchoolSearchForm } from "@/components/SchoolSearchForm";
 import { SchoolSearchResults } from "@/components/SchoolSearchResults";
 import { SiteHeader } from "@/components/SiteHeader";
-import { queryFromSearchParams, scoreSchool } from "@/lib/catalog";
+import {
+  queryFromSearchParams,
+  scoreSchool,
+  searchSchools,
+  type CatalogSchool,
+} from "@/lib/catalog";
 import { searchSchoolsSafe } from "@/lib/live-search";
 import { copy } from "@/lib/copy";
 
@@ -14,19 +19,31 @@ const EXAMPLES = [
   { q: "YAIS", label: "YAIS" },
 ] as const;
 
+async function loadSchools(query: string): Promise<CatalogSchool[]> {
+  if (!query) return [];
+  const local = searchSchools(query);
+  try {
+    const live = await searchSchoolsSafe(query);
+    return live.length > 0 ? live : local;
+  } catch {
+    // Windows Node often throws TypeError: fetch failed against Supabase.
+    // Never surface that — show seed results instead.
+    return local;
+  }
+}
+
 export default async function Home({ searchParams }: PageProps<"/">) {
   const resolved = await searchParams;
   const query = queryFromSearchParams(resolved);
-  const initialSchools = query
-    ? (await searchSchoolsSafe(query)).map((school) => ({
-        ...school,
-        fields: scoreSchool(school.id).map((row) => ({
-          fieldName: row.fieldName,
-          gradeBand: row.gradeBand,
-          tier: row.result.tier,
-        })),
-      }))
-    : [];
+  const schools = await loadSchools(query);
+  const initialSchools = schools.map((school) => ({
+    ...school,
+    fields: scoreSchool(school.id).map((row) => ({
+      fieldName: row.fieldName,
+      gradeBand: row.gradeBand,
+      tier: row.result.tier,
+    })),
+  }));
 
   return (
     <div className="flex flex-1 flex-col">

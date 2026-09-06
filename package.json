@@ -10,8 +10,9 @@
     "moe:apply": "tsx scripts/apply-moe-registration.ts"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.112.4",
     "@base-ui/react": "^1.7.0",
+    "@supabase/ssr": "^0.12.6",
+    "@supabase/supabase-js": "^2.112.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.37.0",
