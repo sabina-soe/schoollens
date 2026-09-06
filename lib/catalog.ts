@@ -1,3 +1,4 @@
+import checklist from "../data/school-profiles-checklist.json";
 import seed from "../seed_data_template.json";
 import {
   computeConfidence,
@@ -13,6 +14,12 @@ import {
   lookupMoeRegistration,
   moeEvidenceNote,
 } from "@/lib/moe-list";
+import {
+  CHECKLIST_SOURCE_NAME,
+  CHECKLIST_SOURCE_RELIABILITY,
+  CHECKLIST_SOURCE_TYPE,
+  schoolsFromChecklist,
+} from "@/lib/scraper-import";
 
 export type CatalogSchool = {
   id: number;
@@ -85,7 +92,66 @@ function sourcesByName() {
     type: "official",
     base_reliability: 0.95,
   });
+  map.set(CHECKLIST_SOURCE_NAME, {
+    name: CHECKLIST_SOURCE_NAME,
+    type: CHECKLIST_SOURCE_TYPE,
+    base_reliability: CHECKLIST_SOURCE_RELIABILITY,
+  });
   return map;
+}
+
+function schoolKey(name: string, aliases?: string | null): string {
+  return [name, aliases]
+    .filter(Boolean)
+    .join(" ")
+    .replace(/^example:\s*/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function seedSchools(): SeedSchool[] {
+  return ((seed.schools ?? []) as SeedSchool[]).map((school) => ({
+    ...school,
+    is_synthetic: school.is_synthetic,
+  }));
+}
+
+function checklistAsSeed(): SeedSchool[] {
+  return schoolsFromChecklist(checklist).map((school) => ({
+    name: school.name,
+    aliases: school.aliases,
+    city: school.city,
+    curriculum_hint: school.curriculum_hint,
+    is_synthetic: school.is_synthetic,
+    notes: school.notes,
+    claims: school.claims,
+  }));
+}
+
+function mergeSeedClaims(base: SeedSchool[], extras: SeedSchool[]): SeedSchool[] {
+  const extraByKey = extras.map((school) => ({
+    key: schoolKey(school.name, school.aliases),
+    school,
+  }));
+  return base.map((school) => {
+    const key = schoolKey(school.name, school.aliases);
+    const match = extraByKey.find(
+      (row) =>
+        row.key === key ||
+        row.key.includes(key) ||
+        key.includes(row.key),
+    );
+    if (!match) return school;
+    return {
+      ...school,
+      aliases: school.aliases ?? match.school.aliases,
+      city: school.city ?? match.school.city,
+      curriculum_hint: school.curriculum_hint ?? match.school.curriculum_hint,
+      notes: school.notes ?? match.school.notes,
+      claims: [...(school.claims ?? []), ...(match.school.claims ?? [])],
+    };
+  });
 }
 
 function buildCatalog() {
@@ -94,7 +160,14 @@ function buildCatalog() {
   const claims: CatalogClaim[] = [];
   let claimId = 1;
 
-  ((seed.schools ?? []) as SeedSchool[]).forEach((school, index) => {
+  const fromChecklist = checklistAsSeed();
+  const fromSeed = seedSchools();
+  const rows =
+    fromChecklist.length > 0
+      ? mergeSeedClaims(fromChecklist, fromSeed)
+      : fromSeed;
+
+  rows.forEach((school, index) => {
     const id = index + 1;
     const catalogSchool: CatalogSchool = {
       id,
@@ -172,6 +245,10 @@ function searchTokens(school: CatalogSchool): string[] {
   return [school.name, school.displayName, ...aliases]
     .map((part) => part.toLowerCase())
     .filter(Boolean);
+}
+
+export function listSchools(): CatalogSchool[] {
+  return catalog.schools;
 }
 
 export function searchSchools(query: string): CatalogSchool[] {

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "moe:apply": "tsx scripts/apply-moe-registration.ts"
+    "moe:apply": "tsx scripts/apply-moe-registration.ts",
+    "checklist:import": "tsx scripts/import-checklist.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

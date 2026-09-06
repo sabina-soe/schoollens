@@ -3,7 +3,9 @@ import Link from "next/link";
 import { SchoolSearchForm } from "@/components/SchoolSearchForm";
 import { SchoolSearchResults } from "@/components/SchoolSearchResults";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SchoolCard } from "@/components/SchoolCard";
 import {
+  listSchools,
   queryFromSearchParams,
   scoreSchool,
   searchSchools,
@@ -99,6 +101,37 @@ export default async function Home({ searchParams }: PageProps<"/">) {
             initialSchools={initialSchools}
           />
         </Suspense>
+
+        {!query ? (
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">
+                {copy.directoryTitle}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {copy.directoryHelp} {listSchools().length} listed.
+              </p>
+            </div>
+            <ul className="space-y-3">
+              {listSchools().map((school) => (
+                <li key={school.id}>
+                  <SchoolCard
+                    id={school.id}
+                    name={school.displayName}
+                    city={school.city}
+                    curriculumHint={school.curriculumHint}
+                    isSynthetic={school.isSynthetic}
+                    fields={scoreSchool(school.id).map((row) => ({
+                      fieldName: row.fieldName,
+                      gradeBand: row.gradeBand,
+                      tier: row.result.tier,
+                    }))}
+                  />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </main>
     </div>
   );
