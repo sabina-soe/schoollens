@@ -1,8 +1,9 @@
+import { Suspense } from "react";
 import Link from "next/link";
-import { SchoolCard } from "@/components/SchoolCard";
 import { SchoolSearchForm } from "@/components/SchoolSearchForm";
+import { SchoolSearchResults } from "@/components/SchoolSearchResults";
 import { SiteHeader } from "@/components/SiteHeader";
-import { scoreSchool, searchSchools } from "@/lib/catalog";
+import { queryFromSearchParams } from "@/lib/catalog";
 import { copy } from "@/lib/copy";
 
 export const dynamic = "force-dynamic";
@@ -12,14 +13,9 @@ const EXAMPLES = [
   { q: "YAIS", label: "YAIS" },
 ] as const;
 
-type PageProps = {
-  searchParams: Promise<{ q?: string }>;
-};
-
-export default async function Home({ searchParams }: PageProps) {
-  const { q } = await searchParams;
-  const query = (q ?? "").trim();
-  const schools = query ? searchSchools(query) : [];
+export default async function Home({ searchParams }: PageProps<"/">) {
+  const resolved = await searchParams;
+  const query = queryFromSearchParams(resolved);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -38,7 +34,7 @@ export default async function Home({ searchParams }: PageProps) {
           </p>
         </div>
 
-        <SchoolSearchForm initialQuery={query} />
+        <SchoolSearchForm key={query} initialQuery={query} />
 
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="text-muted-foreground">{copy.tryLabel}:</span>
@@ -65,43 +61,13 @@ export default async function Home({ searchParams }: PageProps) {
           </span>
         </div>
 
-        {query ? (
-          schools.length === 0 ? (
-            <section className="space-y-3 rounded-xl border border-border/80 bg-white px-4 py-5">
-              <p className="inline-flex items-center gap-2 text-base font-semibold text-confidence-unknown">
-                <span aria-hidden>🔴</span> {copy.noMatch}
-              </p>
-              <p className="text-base leading-relaxed text-muted-foreground">
-                {copy.noMatchHelp}
-              </p>
-            </section>
-          ) : (
-            <section className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                {schools.length} result{schools.length === 1 ? "" : "s"} for
-                “{query}”
-              </p>
-              <ul className="space-y-3">
-                {schools.map((school) => (
-                  <li key={school.id}>
-                    <SchoolCard
-                      id={school.id}
-                      name={school.displayName}
-                      city={school.city}
-                      curriculumHint={school.curriculumHint}
-                      isSynthetic={school.isSynthetic}
-                      fields={scoreSchool(school.id).map((row) => ({
-                        fieldName: row.fieldName,
-                        gradeBand: row.gradeBand,
-                        tier: row.result.tier,
-                      }))}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )
-        ) : null}
+        <Suspense
+          fallback={
+            <p className="text-sm text-muted-foreground">Loading results…</p>
+          }
+        >
+          <SchoolSearchResults initialQuery={query} />
+        </Suspense>
       </main>
     </div>
   );

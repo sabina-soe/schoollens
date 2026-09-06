@@ -153,15 +153,35 @@ function buildCatalog() {
 
 const catalog = buildCatalog();
 
+function firstParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return (value[0] ?? "").trim();
+  return (value ?? "").trim();
+}
+
+export function queryFromSearchParams(
+  searchParams: { q?: string | string[] } | null | undefined,
+): string {
+  return firstParam(searchParams?.q);
+}
+
+function searchTokens(school: CatalogSchool): string[] {
+  const aliases = (school.aliases ?? "")
+    .split(/[,/;|]/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  return [school.name, school.displayName, ...aliases]
+    .map((part) => part.toLowerCase())
+    .filter(Boolean);
+}
+
 export function searchSchools(query: string): CatalogSchool[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
   return catalog.schools.filter((school) => {
-    const haystack = [school.name, school.displayName, school.aliases]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(q);
+    const tokens = searchTokens(school);
+    return tokens.some(
+      (token) => token.includes(q) || (q.length >= 3 && token.startsWith(q)),
+    );
   });
 }
 
