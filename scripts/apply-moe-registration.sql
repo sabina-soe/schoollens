@@ -107,3 +107,18 @@ where not exists (
     and c.source_id = classified.source_id
     and c.field_name = 'moe_registration'
 );
+
+select
+  s.id,
+  s.name,
+  s.aliases,
+  c.value_text,
+  c.status,
+  c.source_date,
+  left(c.evidence_note, 160) as evidence_note
+from claims c
+join schools s on s.id = c.school_id
+join sources src on src.id = c.source_id
+where c.field_name = 'moe_registration'
+  and src.name = 'MoE approved list of private international-curriculum schools'
+order by s.name;
