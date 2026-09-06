@@ -2,8 +2,12 @@
  * Upsert moe_registration claims from the official MoE approved list.
  * Does not wipe other claims. Creates the official source if missing.
  *
- * Windows/Node often fails with a bare "TypeError: fetch failed" when
- * IPv6 is tried first. This script forces IPv4 and prints the real cause.
+ * Windows often throws a bare TypeError: fetch failed because Undici
+ * cannot complete the TLS connection. This script uses Node https with
+ * IPv4 only, and prints the underlying error code.
+ *
+ * If Node still cannot reach Supabase, run scripts/apply-moe-registration.sql
+ * in the Supabase SQL editor instead.
  *
  * Requires:
  *   SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL)
@@ -22,25 +26,15 @@ import {
   lookupMoeRegistration,
   moeEvidenceNote,
 } from "../lib/moe-list";
+import { formatError, ipv4Fetch, probeHttps } from "./ipv4-fetch";
 
 dns.setDefaultResultOrder("ipv4first");
-
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const undici = require("undici") as {
-    Agent: new (opts: { connect: { family: number } }) => unknown;
-    setGlobalDispatcher: (agent: unknown) => void;
-  };
-  undici.setGlobalDispatcher(new undici.Agent({ connect: { family: 4 } }));
-} catch {
-  // undici ships with Node 18+; ignore if the require path differs
-}
 
 function loadEnv(filename: string) {
   try {
     const raw = readFileSync(resolve(process.cwd(), filename), "utf8");
     for (const line of raw.split(/\r?\n/)) {
-      const trimmed = line.trim();
+      const trimmed = line.trim().replace(/^\uFEFF/, "");
       if (!trimmed || trimmed.startsWith("#")) continue;
       const eq = trimmed.indexOf("=");
       if (eq === -1) continue;
@@ -68,17 +62,6 @@ function requireEnv(name: string): string {
     throw new Error(`Missing ${name}`);
   }
   return value;
-}
-
-function formatError(err: unknown): string {
-  if (!(err instanceof Error)) return String(err);
-  const parts = [err.message];
-  let current: unknown = (err as Error & { cause?: unknown }).cause;
-  while (current instanceof Error && parts.length < 5) {
-    parts.push(current.message);
-    current = (current as Error & { cause?: unknown }).cause;
-  }
-  return parts.join(" → ");
 }
 
 async function withRetry<T>(label: string, fn: () => Promise<T>): Promise<T> {
@@ -114,11 +97,22 @@ async function main() {
   }
   const serviceRoleKey = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
 
-  console.log(`Connecting to ${new URL(url).origin} (IPv4 first)…`);
+  console.log(`Node ${process.version}`);
+  console.log(`Connecting to ${new URL(url).origin} via Node https IPv4…`);
+  console.log(
+    `Env present: URL=yes SERVICE_ROLE=${serviceRoleKey ? "yes" : "no"}`,
+  );
   await probeHost(url);
+  try {
+    console.log(await probeHttps(new URL(url).origin));
+  } catch (err) {
+    console.error(`HTTPS probe failed: ${formatError(err)}`);
+    throw err;
+  }
 
   const supabase: SupabaseClient = createClient(url, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: { fetch: ipv4Fetch as typeof fetch },
   });
 
   let sourceId: number;
@@ -217,8 +211,9 @@ async function main() {
 
 main().catch((err) => {
   console.error(formatError(err));
+  if (err instanceof Error && err.stack) console.error(err.stack);
   console.error(
-    "If this is still 'fetch failed', from PowerShell run:\n  $env:NODE_OPTIONS='--dns-result-order=ipv4first'\n  npx tsx scripts/apply-moe-registration.ts",
+    "Node still cannot reach Supabase. Apply instead in the Supabase SQL editor:\n  scripts/apply-moe-registration.sql",
   );
   process.exit(1);
 });
