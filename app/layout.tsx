@@ -24,7 +24,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <footer className="mt-auto border-t border-border/80 bg-white px-4 py-6">
+          <p className="mx-auto max-w-5xl text-sm text-muted-foreground">
+            SchoolLens cites sources and labels confidence. It does not rank
+            schools or invent missing facts.
+          </p>
+        </footer>
+      </body>
     </html>
   );
 }

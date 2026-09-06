@@ -51,6 +51,23 @@
           "status": "school-provided",
           "source_date": "2026-08-01",
           "evidence_note": "Confirms the same claim from a second, independent-of-directory source"
+        },
+        {
+          "field_name": "grades_offered",
+          "value_text": "Early Years (Nursery) through Year 13",
+          "source_name": "School's own website",
+          "status": "school-provided",
+          "source_date": "2026-08-01",
+          "evidence_note": "Stated on the school's admissions / about page"
+        },
+        {
+          "field_name": "established_year",
+          "value_text": "2009",
+          "value_numeric": 2009,
+          "source_name": "School's own website",
+          "status": "school-provided",
+          "source_date": "2026-08-01",
+          "evidence_note": "School states it was established in August 2009"
         }
       ]
     },

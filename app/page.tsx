@@ -1,50 +1,56 @@
-import { Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { SchoolCard } from "@/components/SchoolCard";
+import { SchoolSearchForm } from "@/components/SchoolSearchForm";
+import { SiteHeader } from "@/components/SiteHeader";
+import { scoreSchool, searchSchools } from "@/lib/catalog";
+import { copy } from "@/lib/copy";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+const EXAMPLES = [
+  { q: "MISY", label: "MISY" },
+  { q: "YAIS", label: "YAIS" },
+] as const;
+
+type PageProps = {
+  searchParams: Promise<{ q?: string }>;
+};
+
+export default async function Home({ searchParams }: PageProps) {
+  const { q } = await searchParams;
+  const query = (q ?? "").trim();
+  const schools = query ? searchSchools(query) : [];
+
   return (
     <div className="flex flex-1 flex-col">
-      <header className="border-b border-border/80 bg-white/80 px-4 py-3 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between">
-          <p className="text-lg font-semibold tracking-tight text-primary">
-            SchoolLens
-          </p>
-          <p className="text-xs text-muted-foreground">Shell deploy</p>
-        </div>
-      </header>
+      <SiteHeader />
 
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-8 px-4 py-12">
+      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-10">
         <div className="space-y-3">
+          <p className="text-sm font-medium uppercase tracking-wide text-secondary">
+            Myanmar international schools
+          </p>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            SchoolLens
+            {copy.appName}
           </h1>
-          <p className="max-w-md text-base leading-relaxed text-muted-foreground">
-            Clear confidence signals on school claims — Supported, Uncertain, or
-            Unknown — backed by sources you can check.
+          <p className="max-w-lg text-base leading-relaxed text-muted-foreground">
+            {copy.tagline}
           </p>
         </div>
 
-        <div className="flex w-full flex-col gap-3 sm:flex-row">
-          <label className="sr-only" htmlFor="school-search">
-            Search schools
-          </label>
-          <div className="relative flex-1">
-            <Search
-              aria-hidden
-              className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-muted-foreground"
-            />
-            <input
-              id="school-search"
-              name="q"
-              type="search"
-              disabled
-              placeholder="Search schools (coming next)"
-              className="h-12 w-full rounded-lg border border-input bg-white pr-3 pl-11 text-base text-foreground outline-none ring-ring placeholder:text-muted-foreground focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-70"
-            />
-          </div>
-          <Button type="button" disabled className="h-12 min-w-28 px-6">
-            Search
-          </Button>
+        <SchoolSearchForm initialQuery={query} />
+
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-muted-foreground">{copy.tryLabel}:</span>
+          {EXAMPLES.map((example) => (
+            <Link
+              key={example.q}
+              href={`/?q=${example.q}`}
+              className="inline-flex min-h-11 items-center rounded-full border border-border bg-white px-3 font-medium text-primary"
+            >
+              {example.label}
+            </Link>
+          ))}
         </div>
 
         <div className="flex flex-wrap gap-3 text-sm">
@@ -58,6 +64,44 @@ export default function Home() {
             <span aria-hidden>🔴</span> Unknown
           </span>
         </div>
+
+        {query ? (
+          schools.length === 0 ? (
+            <section className="space-y-3 rounded-xl border border-border/80 bg-white px-4 py-5">
+              <p className="inline-flex items-center gap-2 text-base font-semibold text-confidence-unknown">
+                <span aria-hidden>🔴</span> {copy.noMatch}
+              </p>
+              <p className="text-base leading-relaxed text-muted-foreground">
+                {copy.noMatchHelp}
+              </p>
+            </section>
+          ) : (
+            <section className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {schools.length} result{schools.length === 1 ? "" : "s"} for
+                “{query}”
+              </p>
+              <ul className="space-y-3">
+                {schools.map((school) => (
+                  <li key={school.id}>
+                    <SchoolCard
+                      id={school.id}
+                      name={school.displayName}
+                      city={school.city}
+                      curriculumHint={school.curriculumHint}
+                      isSynthetic={school.isSynthetic}
+                      fields={scoreSchool(school.id).map((row) => ({
+                        fieldName: row.fieldName,
+                        gradeBand: row.gradeBand,
+                        tier: row.result.tier,
+                      }))}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        ) : null}
       </main>
     </div>
   );

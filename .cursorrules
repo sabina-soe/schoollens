@@ -7,7 +7,7 @@
 - Use Tailwind + shadcn/ui components; do not introduce another UI library.
 - Match the existing color palette: primary #028090, secondary #00A896, accent #02C39A.
 - Confidence tiers are exactly: Supported (🟢) / Uncertain (🟡) / Unknown (🔴) — no other states.
-- Locked field_name vocabulary: tuition_fee, student_teacher_ratio, curriculum, class_size, transportation, grades_offered, established_year.
+- Locked field_name vocabulary: tuition_fee, student_teacher_ratio, curriculum, class_size, transportation, grades_offered, established_year, moe_registration.
 - Admin writes: RLS must check auth.uid() against the single shared admin UID (not any authenticated user).
 - Show a visible synthetic/illustrative badge whenever schools.is_synthetic is true (SchoolCard + school detail header).
 - Q&A is embedded on /schools/[id] only; pass all claims for that school to Claude (no classifier). Skip standalone /ask.

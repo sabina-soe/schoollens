@@ -187,9 +187,10 @@ async function main() {
       evidence_note: moeEvidenceNote(lookup),
     };
 
-    if (existing.data?.id) {
+    const existingId = existing.data?.id;
+    if (existingId) {
       await withRetry(`update ${school.name}`, async () => {
-        const result = await supabase.from("claims").update(payload).eq("id", existing.data.id);
+        const result = await supabase.from("claims").update(payload).eq("id", existingId);
         if (result.error) throw new Error(result.error.message);
         return result;
       });
