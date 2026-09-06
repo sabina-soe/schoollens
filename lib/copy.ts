@@ -8,7 +8,7 @@ export const copy = {
   tryLabel: "Try a name",
   directoryTitle: "Listed schools",
   directoryHelp:
-    "These names come from the school profile checklist, doris.school, the official MoE list, and our researched seed. Open a school to see only facts we can cite.",
+    "These names come from the school profile checklist, doris.school, and our researched seed. MoE approval and official addresses are attached when the Ministry list matches. Open a school to see only facts we can cite.",
   noMatch: "No schools matched",
   noMatchHelp:
     "No verified listings for that name yet — try another name or alias. We only show schools we have evidence for.",
@@ -16,6 +16,7 @@ export const copy = {
   overviewTitle: "Evidence Confidence Overview",
   overviewHelp:
     "How many of the eight fields we can stand behind for this school. This is not a grade or a ranking.",
+  address: "Address",
   atAGlance: "At a glance",
   sourcesTitle: "Sources used on this page",
   sourcesHelp:

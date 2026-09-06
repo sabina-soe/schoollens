@@ -1,5 +1,6 @@
 import checklist from "../data/school-profiles-checklist.json";
 import doris from "../data/doris-myanmar-schools.json";
+import locationFile from "../data/school-locations.json";
 import seed from "../seed_data_template.json";
 import {
   computeConfidence,
@@ -12,12 +13,13 @@ import { LOCKED_FIELDS, displaySchoolName } from "@/lib/fields";
 import {
   MOE_SOURCE_DATE,
   MOE_SOURCE_NAME,
+  addressFromLookup,
   aliasesFromMoeName,
   cityLabelFromAddress,
   lookupMoeRegistration,
   moeEvidenceNote,
-  moeListings,
 } from "@/lib/moe-list";
+import { locationsFromPayload, lookupLocation } from "@/lib/locations";
 import {
   CHECKLIST_SOURCE_NAME,
   CHECKLIST_SOURCE_RELIABILITY,
@@ -35,6 +37,7 @@ export type CatalogSchool = {
   displayName: string;
   aliases: string | null;
   city: string | null;
+  address: string | null;
   curriculumHint: string | null;
   isSynthetic: boolean;
   notes: string | null;
@@ -84,6 +87,7 @@ type SeedSchool = {
   name: string;
   aliases?: string;
   city?: string;
+  address?: string;
   curriculum_hint?: string;
   is_synthetic: boolean;
   notes?: string;
@@ -125,16 +129,6 @@ function schoolKey(name: string, aliases?: string | null): string {
     .trim();
 }
 
-function coreKey(name: string): string {
-  return name
-    .replace(/^example:\s*/i, "")
-    .replace(/\([^)]*\)/g, " ")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 function seedSchools(): SeedSchool[] {
   return ((seed.schools ?? []) as SeedSchool[]).map((school) => ({
     ...school,
@@ -142,25 +136,30 @@ function seedSchools(): SeedSchool[] {
   }));
 }
 
-function moeAsSeed(): SeedSchool[] {
-  const seen = new Set<string>();
-  const rows: SeedSchool[] = [];
-  for (const listing of moeListings()) {
-    const key = schoolKey(listing.name, aliasesFromMoeName(listing.name));
-    if (seen.has(key)) continue;
-    seen.add(key);
-    rows.push({
-      name: listing.name,
-      aliases: aliasesFromMoeName(listing.name) ?? undefined,
-      city: cityLabelFromAddress(listing.address) ?? undefined,
-      is_synthetic: false,
-      notes: listing.address
-        ? `Official MoE listing seq ${listing.seq ?? "—"}.`
-        : `Official MoE listing seq ${listing.seq ?? "—"}.`,
-      claims: [],
+function applyPlaces(rows: SeedSchool[]): SeedSchool[] {
+  const locations = locationsFromPayload(locationFile);
+  return rows.map((school) => {
+    const location = lookupLocation(locations, {
+      name: school.name,
+      aliases: school.aliases,
     });
-  }
-  return rows;
+    const moe = lookupMoeRegistration({
+      name: school.name,
+      aliases: school.aliases ?? null,
+      city: location?.city ?? school.city ?? null,
+    });
+    const moeAddress = addressFromLookup(moe);
+    return {
+      ...school,
+      aliases: school.aliases ?? aliasesFromMoeName(school.name) ?? undefined,
+      city:
+        location?.city ??
+        school.city ??
+        cityLabelFromAddress(moeAddress ?? "") ??
+        undefined,
+      address: location?.address ?? school.address ?? moeAddress ?? undefined,
+    };
+  });
 }
 
 function importedAsSeed(
@@ -170,6 +169,7 @@ function importedAsSeed(
     name: school.name,
     aliases: school.aliases,
     city: school.city,
+    address: school.address,
     curriculum_hint: school.curriculum_hint,
     is_synthetic: school.is_synthetic,
     notes: school.notes,
@@ -210,14 +210,6 @@ function namesMatch(left: string, right: string): boolean {
   return !extra.some((token) => CAMPUS_TOKENS.has(token));
 }
 
-function hasMoreSpecificCampus(rows: SeedSchool[], name: string): boolean {
-  const generic = coreKey(name);
-  return rows.some((row) => {
-    const other = coreKey(row.name);
-    return other !== generic && other.startsWith(`${generic} `);
-  });
-}
-
 function mergeSeedClaims(base: SeedSchool[], extras: SeedSchool[]): SeedSchool[] {
   const extraByKey = extras.map((school) => ({
     key: schoolKey(school.name, school.aliases),
@@ -231,6 +223,7 @@ function mergeSeedClaims(base: SeedSchool[], extras: SeedSchool[]): SeedSchool[]
       ...school,
       aliases: school.aliases ?? match.school.aliases,
       city: school.city ?? match.school.city,
+      address: school.address ?? match.school.address,
       curriculum_hint: school.curriculum_hint ?? match.school.curriculum_hint,
       notes: school.notes ?? match.school.notes,
       claims: [...(school.claims ?? []), ...(match.school.claims ?? [])],
@@ -255,6 +248,7 @@ function mergeAndAppend(base: SeedSchool[], extras: SeedSchool[]): SeedSchool[] 
       ...school,
       aliases: school.aliases ?? match.aliases,
       city: school.city ?? match.city,
+      address: school.address ?? match.address,
       curriculum_hint: school.curriculum_hint ?? match.curriculum_hint,
       notes: school.notes ?? match.notes,
       claims: [...(school.claims ?? []), ...(match.claims ?? [])],
@@ -275,19 +269,11 @@ function buildCatalog() {
   const fromChecklist = checklistAsSeed();
   const fromSeed = seedSchools();
   const fromDoris = dorisAsSeed();
-  const fromMoe = moeAsSeed();
   const primary =
     fromChecklist.length > 0
       ? mergeSeedClaims(fromChecklist, fromSeed)
       : fromSeed;
-  const rows = mergeAndAppend(primary, fromDoris);
-  for (const school of fromMoe) {
-    const key = coreKey(school.name);
-    const exists = rows.some((row) => namesMatch(coreKey(row.name), key));
-    if (!exists && !hasMoreSpecificCampus(rows, school.name)) {
-      rows.push(school);
-    }
-  }
+  const rows = applyPlaces(mergeAndAppend(primary, fromDoris));
 
   rows.forEach((school, index) => {
     const id = index + 1;
@@ -297,6 +283,7 @@ function buildCatalog() {
       displayName: displaySchoolName(school.name),
       aliases: school.aliases ?? null,
       city: school.city ?? null,
+      address: school.address ?? null,
       curriculumHint: school.curriculum_hint ?? null,
       isSynthetic: school.is_synthetic,
       notes: school.notes ?? null,

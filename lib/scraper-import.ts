@@ -28,6 +28,7 @@ export type ImportedSchool = {
   name: string;
   aliases?: string;
   city?: string;
+  address?: string;
   curriculum_hint?: string;
   is_synthetic: boolean;
   notes?: string;
@@ -483,10 +484,16 @@ function importOne(
     city:
       firstString(record, [
         "city",
-        "location",
         "township",
         "town",
         "region",
+      ]) ?? undefined,
+    address:
+      firstString(record, [
+        "address",
+        "location",
+        "street",
+        "full_address",
       ]) ?? undefined,
     curriculum_hint: curriculumHint || curriculumFromArray || undefined,
     is_synthetic: Boolean(record.is_synthetic),

@@ -105,6 +105,7 @@ export function SchoolSearchResults({
               id={school.id}
               name={school.displayName}
               city={school.city}
+              address={school.address}
               curriculumHint={school.curriculumHint}
               isSynthetic={school.isSynthetic}
               fields={school.fields ?? []}

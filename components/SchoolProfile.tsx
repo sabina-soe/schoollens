@@ -246,6 +246,11 @@ export function SchoolProfile({ school }: { school: CatalogSchool }) {
               .filter(Boolean)
               .join(" · ")}
           </p>
+          {school.address ? (
+            <p className="mt-2 text-base text-primary-foreground/80">
+              {copy.address}: {school.address}
+            </p>
+          ) : null}
           {school.aliases ? (
             <p className="mt-2 text-base text-primary-foreground/75">
               Also known as {school.aliases}
@@ -331,6 +336,11 @@ export function SchoolProfile({ school }: { school: CatalogSchool }) {
               : ""}{" "}
             Facts below are only what we can cite.
           </p>
+          {school.address ? (
+            <p className="text-base text-foreground">
+              {copy.address}: {school.address}
+            </p>
+          ) : null}
           {school.notes ? (
             <p className="text-base text-muted-foreground">{school.notes}</p>
           ) : null}

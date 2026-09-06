@@ -40,6 +40,7 @@ function fromLiveRow(row: LiveSchoolRow): CatalogSchool {
     displayName: displaySchoolName(row.name),
     aliases: row.aliases,
     city: row.city,
+    address: null,
     curriculumHint: row.curriculum_hint,
     isSynthetic: Boolean(row.is_synthetic),
     notes: row.notes,

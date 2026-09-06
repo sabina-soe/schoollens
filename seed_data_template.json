@@ -81,6 +81,13 @@
       ,"_note": "No tuition_fee claim on purpose: when a school genuinely doesn't publish fees anywhere, don't add a claim saying so — just add NO claim for that field. Absence of claims is how the engine renders 🔴 Unknown. This is your live 'insufficient evidence' demo school."
     },
     {
+      "name": "The International School Yangon",
+      "aliases": "ISY",
+      "city": "Yangon",
+      "is_synthetic": false,
+      "claims": []
+    },
+    {
       "name": "Horizon International Academy",
       "aliases": "HIA (illustrative)",
       "city": "Yangon",

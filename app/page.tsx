@@ -119,6 +119,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                     id={school.id}
                     name={school.displayName}
                     city={school.city}
+                    address={school.address}
                     curriculumHint={school.curriculumHint}
                     isSynthetic={school.isSynthetic}
                     fields={scoreSchool(school.id).map((row) => ({

@@ -20,6 +20,7 @@ export type SchoolCardProps = {
   id: number;
   name: string;
   city: string | null;
+  address?: string | null;
   curriculumHint: string | null;
   isSynthetic: boolean;
   fields: SchoolCardFieldSummary[];
@@ -29,6 +30,7 @@ export function SchoolCard({
   id,
   name,
   city,
+  address,
   curriculumHint,
   isSynthetic,
   fields,
@@ -57,6 +59,9 @@ export function SchoolCard({
         {[city, curriculumHint].filter(Boolean).join(" · ") ||
           "Details on school page"}
       </p>
+      {address ? (
+        <p className="mt-1 text-sm text-muted-foreground">{address}</p>
+      ) : null}
       <ul
         className="mt-3 flex flex-wrap items-center gap-2"
         aria-label="Confidence summary"
