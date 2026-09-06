@@ -8,7 +8,7 @@ export const copy = {
   tryLabel: "Try a name",
   directoryTitle: "Listed schools",
   directoryHelp:
-    "These names come from the school profile checklist. Open a school to see only facts we can cite.",
+    "These names come from the school profile checklist, doris.school, the official MoE list, and our researched seed. Open a school to see only facts we can cite.",
   noMatch: "No schools matched",
   noMatchHelp:
     "No verified listings for that name yet — try another name or alias. We only show schools we have evidence for.",

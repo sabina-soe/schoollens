@@ -1,4 +1,5 @@
 import checklist from "../data/school-profiles-checklist.json";
+import doris from "../data/doris-myanmar-schools.json";
 import seed from "../seed_data_template.json";
 import {
   computeConfidence,
@@ -21,7 +22,11 @@ import {
   CHECKLIST_SOURCE_NAME,
   CHECKLIST_SOURCE_RELIABILITY,
   CHECKLIST_SOURCE_TYPE,
+  DORIS_SOURCE_NAME,
+  DORIS_SOURCE_RELIABILITY,
+  DORIS_SOURCE_TYPE,
   schoolsFromChecklist,
+  schoolsFromDoris,
 } from "@/lib/scraper-import";
 
 export type CatalogSchool = {
@@ -100,6 +105,11 @@ function sourcesByName() {
     type: CHECKLIST_SOURCE_TYPE,
     base_reliability: CHECKLIST_SOURCE_RELIABILITY,
   });
+  map.set(DORIS_SOURCE_NAME, {
+    name: DORIS_SOURCE_NAME,
+    type: DORIS_SOURCE_TYPE,
+    base_reliability: DORIS_SOURCE_RELIABILITY,
+  });
   return map;
 }
 
@@ -153,8 +163,10 @@ function moeAsSeed(): SeedSchool[] {
   return rows;
 }
 
-function checklistAsSeed(): SeedSchool[] {
-  return schoolsFromChecklist(checklist).map((school) => ({
+function importedAsSeed(
+  schools: ReturnType<typeof schoolsFromChecklist>,
+): SeedSchool[] {
+  return schools.map((school) => ({
     name: school.name,
     aliases: school.aliases,
     city: school.city,
@@ -165,6 +177,18 @@ function checklistAsSeed(): SeedSchool[] {
   }));
 }
 
+function checklistAsSeed(): SeedSchool[] {
+  return importedAsSeed(schoolsFromChecklist(checklist));
+}
+
+function dorisAsSeed(): SeedSchool[] {
+  return importedAsSeed(schoolsFromDoris(doris));
+}
+
+function namesMatch(left: string, right: string): boolean {
+  return left === right || left.includes(right) || right.includes(left);
+}
+
 function mergeSeedClaims(base: SeedSchool[], extras: SeedSchool[]): SeedSchool[] {
   const extraByKey = extras.map((school) => ({
     key: schoolKey(school.name, school.aliases),
@@ -172,12 +196,7 @@ function mergeSeedClaims(base: SeedSchool[], extras: SeedSchool[]): SeedSchool[]
   }));
   return base.map((school) => {
     const key = schoolKey(school.name, school.aliases);
-    const match = extraByKey.find(
-      (row) =>
-        row.key === key ||
-        row.key.includes(key) ||
-        key.includes(row.key),
-    );
+    const match = extraByKey.find((row) => namesMatch(row.key, key));
     if (!match) return school;
     return {
       ...school,
@@ -190,6 +209,34 @@ function mergeSeedClaims(base: SeedSchool[], extras: SeedSchool[]): SeedSchool[]
   });
 }
 
+/** Merge matching extras onto base, then append extras that are not already listed. */
+function mergeAndAppend(base: SeedSchool[], extras: SeedSchool[]): SeedSchool[] {
+  const used = new Set<number>();
+  const merged = base.map((school) => {
+    const key = schoolKey(school.name, school.aliases);
+    const matchIndex = extras.findIndex((extra, index) => {
+      if (used.has(index)) return false;
+      return namesMatch(schoolKey(extra.name, extra.aliases), key);
+    });
+    if (matchIndex < 0) return school;
+    used.add(matchIndex);
+    const match = extras[matchIndex];
+    if (!match) return school;
+    return {
+      ...school,
+      aliases: school.aliases ?? match.aliases,
+      city: school.city ?? match.city,
+      curriculum_hint: school.curriculum_hint ?? match.curriculum_hint,
+      notes: school.notes ?? match.notes,
+      claims: [...(school.claims ?? []), ...(match.claims ?? [])],
+    };
+  });
+  extras.forEach((school, index) => {
+    if (!used.has(index)) merged.push(school);
+  });
+  return merged;
+}
+
 function buildCatalog() {
   const sourceMap = sourcesByName();
   const schools: CatalogSchool[] = [];
@@ -198,12 +245,13 @@ function buildCatalog() {
 
   const fromChecklist = checklistAsSeed();
   const fromSeed = seedSchools();
+  const fromDoris = dorisAsSeed();
   const fromMoe = moeAsSeed();
   const primary =
     fromChecklist.length > 0
       ? mergeSeedClaims(fromChecklist, fromSeed)
       : fromSeed;
-  const rows = [...primary];
+  const rows = mergeAndAppend(primary, fromDoris);
   for (const school of fromMoe) {
     const key = coreKey(school.name);
     const exists = rows.some((row) => {
