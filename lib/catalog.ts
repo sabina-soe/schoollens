@@ -185,8 +185,37 @@ function dorisAsSeed(): SeedSchool[] {
   return importedAsSeed(schoolsFromDoris(doris));
 }
 
+const CAMPUS_TOKENS = new Set([
+  "yangon",
+  "mandalay",
+  "taunggyi",
+  "myitkyina",
+  "lashio",
+  "myeik",
+  "naypyidaw",
+  "naypyitaw",
+  "tachileik",
+  "campus",
+]);
+
 function namesMatch(left: string, right: string): boolean {
-  return left === right || left.includes(right) || right.includes(left);
+  if (left === right) return true;
+  const [longer, shorter] =
+    left.length >= right.length ? [left, right] : [right, left];
+  if (!longer.includes(shorter)) return false;
+  const extra = longer
+    .split(" ")
+    .filter((token) => !shorter.split(" ").includes(token));
+  // Do not merge "ILBC International School" with "ILBC International School Mandalay".
+  return !extra.some((token) => CAMPUS_TOKENS.has(token));
+}
+
+function hasMoreSpecificCampus(rows: SeedSchool[], name: string): boolean {
+  const generic = coreKey(name);
+  return rows.some((row) => {
+    const other = coreKey(row.name);
+    return other !== generic && other.startsWith(`${generic} `);
+  });
 }
 
 function mergeSeedClaims(base: SeedSchool[], extras: SeedSchool[]): SeedSchool[] {
@@ -254,11 +283,10 @@ function buildCatalog() {
   const rows = mergeAndAppend(primary, fromDoris);
   for (const school of fromMoe) {
     const key = coreKey(school.name);
-    const exists = rows.some((row) => {
-      const other = coreKey(row.name);
-      return other === key || other.includes(key) || key.includes(other);
-    });
-    if (!exists) rows.push(school);
+    const exists = rows.some((row) => namesMatch(coreKey(row.name), key));
+    if (!exists && !hasMoreSpecificCampus(rows, school.name)) {
+      rows.push(school);
+    }
   }
 
   rows.forEach((school, index) => {

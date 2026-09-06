@@ -191,8 +191,32 @@ function composedValueText(record: Record<string, unknown>): string | null {
   if (annual) {
     return currency ? `${annual} ${currency} / year` : `${annual} / year`;
   }
-  const min = firstString(record, ["min", "from", "low", "tuition_from"]);
-  const max = firstString(record, ["max", "to", "high", "tuition_to"]);
+  const min = firstString(record, [
+    "min",
+    "from",
+    "low",
+    "tuition_from",
+    "tuitionFrom",
+    "fee_min",
+    "feeMin",
+    "min_fee",
+    "minFee",
+    "tuition_min",
+    "tuitionMin",
+  ]);
+  const max = firstString(record, [
+    "max",
+    "to",
+    "high",
+    "tuition_to",
+    "tuitionTo",
+    "fee_max",
+    "feeMax",
+    "max_fee",
+    "maxFee",
+    "tuition_max",
+    "tuitionMax",
+  ]);
   if (min && max) {
     return currency ? `${min}–${max} ${currency}` : `${min}–${max}`;
   }
@@ -280,6 +304,53 @@ function claimValue(raw: unknown): {
   };
 }
 
+function tuitionFromLooseKeys(
+  record: Record<string, unknown>,
+): ReturnType<typeof claimValue> {
+  const range = firstString(record, [
+    "fee_range",
+    "feeRange",
+    "tuition_range",
+    "tuitionRange",
+    "annual_fee_range",
+    "annualFeeRange",
+  ]);
+  if (range) {
+    return {
+      value_text: range,
+      value_numeric: firstNumber(record, ["fee_min", "feeMin", "min_fee", "min"]),
+      grade_band: null,
+      evidence_note: firstString(record, [
+        "evidence_note",
+        "note",
+        "source_url",
+        "url",
+      ]),
+      source_date: firstString(record, ["source_date", "sourceDate", "date"]),
+    };
+  }
+  const composed = composedValueText(record);
+  if (!composed) return null;
+  return {
+    value_text: composed,
+    value_numeric: firstNumber(record, [
+      "fee_min",
+      "feeMin",
+      "min_fee",
+      "min",
+      "value_numeric",
+    ]),
+    grade_band: null,
+    evidence_note: firstString(record, [
+      "evidence_note",
+      "note",
+      "source_url",
+      "url",
+    ]),
+    source_date: firstString(record, ["source_date", "sourceDate", "date"]),
+  };
+}
+
 function pushClaim(
   claims: ImportedClaim[],
   field: FieldName,
@@ -344,6 +415,11 @@ function claimsFromRecord(
       if (!parsed) continue;
       pushClaim(claims, field, parsed, sourceDate, options);
     }
+  }
+
+  if (!claims.some((claim) => claim.field_name === "tuition_fee")) {
+    const loose = tuitionFromLooseKeys(record);
+    if (loose) pushClaim(claims, "tuition_fee", loose, sourceDate, options);
   }
 
   const seen = new Set<string>();
