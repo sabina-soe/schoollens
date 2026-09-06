@@ -104,6 +104,26 @@ export function lookupMoeRegistration(opts: {
   };
 }
 
+export function moeListings(): MoeListing[] {
+  return catalog.listings as MoeListing[];
+}
+
+export function cityLabelFromAddress(address: string): string | null {
+  const city = cityOfAddress(address);
+  if (city === "yangon") return "Yangon";
+  if (city === "mandalay") return "Mandalay";
+  return null;
+}
+
+export function aliasesFromMoeName(name: string): string | null {
+  const tokens = new Set<string>(acronyms(name));
+  const firstWord = name.trim().split(/\s+/)[0] ?? "";
+  if (/^[A-Z]{3,}$/.test(firstWord)) {
+    tokens.add(firstWord);
+  }
+  return tokens.size > 0 ? [...tokens].join(", ") : null;
+}
+
 export function moeEvidenceNote(lookup: MoeLookup): string {
   if (lookup.status === "Not listed") {
     return `Not found on the MoE approved list of private schools teaching the international curriculum (${catalog.source_file}, ${catalog.source_date}).`;

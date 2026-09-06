@@ -11,8 +11,11 @@ import { LOCKED_FIELDS, displaySchoolName } from "@/lib/fields";
 import {
   MOE_SOURCE_DATE,
   MOE_SOURCE_NAME,
+  aliasesFromMoeName,
+  cityLabelFromAddress,
   lookupMoeRegistration,
   moeEvidenceNote,
+  moeListings,
 } from "@/lib/moe-list";
 import {
   CHECKLIST_SOURCE_NAME,
@@ -105,8 +108,20 @@ function schoolKey(name: string, aliases?: string | null): string {
     .filter(Boolean)
     .join(" ")
     .replace(/^example:\s*/i, "")
+    .replace(/\([^)]*\)/g, " ")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function coreKey(name: string): string {
+  return name
+    .replace(/^example:\s*/i, "")
+    .replace(/\([^)]*\)/g, " ")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
@@ -115,6 +130,27 @@ function seedSchools(): SeedSchool[] {
     ...school,
     is_synthetic: school.is_synthetic,
   }));
+}
+
+function moeAsSeed(): SeedSchool[] {
+  const seen = new Set<string>();
+  const rows: SeedSchool[] = [];
+  for (const listing of moeListings()) {
+    const key = schoolKey(listing.name, aliasesFromMoeName(listing.name));
+    if (seen.has(key)) continue;
+    seen.add(key);
+    rows.push({
+      name: listing.name,
+      aliases: aliasesFromMoeName(listing.name) ?? undefined,
+      city: cityLabelFromAddress(listing.address) ?? undefined,
+      is_synthetic: false,
+      notes: listing.address
+        ? `Official MoE listing seq ${listing.seq ?? "—"}.`
+        : `Official MoE listing seq ${listing.seq ?? "—"}.`,
+      claims: [],
+    });
+  }
+  return rows;
 }
 
 function checklistAsSeed(): SeedSchool[] {
@@ -162,10 +198,20 @@ function buildCatalog() {
 
   const fromChecklist = checklistAsSeed();
   const fromSeed = seedSchools();
-  const rows =
+  const fromMoe = moeAsSeed();
+  const primary =
     fromChecklist.length > 0
       ? mergeSeedClaims(fromChecklist, fromSeed)
       : fromSeed;
+  const rows = [...primary];
+  for (const school of fromMoe) {
+    const key = coreKey(school.name);
+    const exists = rows.some((row) => {
+      const other = coreKey(row.name);
+      return other === key || other.includes(key) || key.includes(other);
+    });
+    if (!exists) rows.push(school);
+  }
 
   rows.forEach((school, index) => {
     const id = index + 1;
@@ -174,7 +220,7 @@ function buildCatalog() {
       name: school.name,
       displayName: displaySchoolName(school.name),
       aliases: school.aliases ?? null,
-      city: school.city ?? "Yangon",
+      city: school.city ?? null,
       curriculumHint: school.curriculum_hint ?? null,
       isSynthetic: school.is_synthetic,
       notes: school.notes ?? null,
@@ -256,7 +302,8 @@ export function searchSchools(query: string): CatalogSchool[] {
   if (!q) return [];
   return catalog.schools.filter((school) => {
     const tokens = searchTokens(school);
-    return tokens.some(
+    const words = tokens.flatMap((token) => token.split(/\s+/)).filter(Boolean);
+    return [...tokens, ...words].some(
       (token) => token.includes(q) || (q.length >= 3 && token.startsWith(q)),
     );
   });
