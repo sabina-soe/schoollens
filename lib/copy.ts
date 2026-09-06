@@ -13,10 +13,14 @@ export const copy = {
   noMatchHelp:
     "No verified listings for that name yet — try another name or alias. We only show schools we have evidence for.",
   illustrative: "Illustrative data",
-  overviewTitle: "Evidence confidence",
+  overviewTitle: "Evidence Confidence Overview",
   overviewHelp:
-    "How many fields we can stand behind — the same Supported / Uncertain / Unknown scale as each fact below. We do not give letter grades.",
+    "How many of the eight fields we can stand behind for this school. This is not a grade or a ranking.",
   atAGlance: "At a glance",
+  sourcesTitle: "Sources used on this page",
+  sourcesHelp:
+    "Every cited source for this school stays visible here. We do not hide sources behind a click.",
+  glanceHint: "Open full evidence",
   about: "About",
   academics: "Academics",
   tuition: "Tuition & transport",
@@ -34,7 +38,7 @@ export const copy = {
   askButton: "Ask",
   askEmpty: "Type a question about this school.",
   unknownNextStep:
-    "No verified information yet — check the school’s website or admissions office, then compare with an independent directory when you can.",
+    "We do not have a cited value for this field yet. That is a gap in our evidence, not an accusation. Check the school’s website or admissions office, then compare with an independent directory when you can.",
   home: "Home",
   internationalPrivate: "International / private",
 } as const;

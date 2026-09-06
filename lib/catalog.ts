@@ -354,22 +354,57 @@ export function scoreSchool(schoolId: number): ScoredField[] {
 
 export function overviewCounts(schoolId: number) {
   const scored = scoreSchool(schoolId);
-  const present = new Set(scored.map((row) => row.fieldName));
   const counts = { Supported: 0, Uncertain: 0, Unknown: 0 };
-  for (const row of scored) counts[row.result.tier] += 1;
   for (const field of LOCKED_FIELDS) {
-    if (!present.has(field)) counts.Unknown += 1;
+    const bands = scored.filter((row) => row.fieldName === field);
+    if (bands.length === 0) {
+      counts.Unknown += 1;
+      continue;
+    }
+    if (bands.some((row) => row.result.tier === "Uncertain")) {
+      counts.Uncertain += 1;
+    } else if (bands.every((row) => row.result.tier === "Supported")) {
+      counts.Supported += 1;
+    } else if (bands.every((row) => row.result.tier === "Unknown")) {
+      counts.Unknown += 1;
+    } else {
+      counts.Uncertain += 1;
+    }
   }
   return counts;
+}
+
+export function fieldScores(schoolId: number, fieldName: string): ScoredField[] {
+  return scoreSchool(schoolId).filter((row) => row.fieldName === fieldName);
 }
 
 export function fieldScore(
   schoolId: number,
   fieldName: string,
 ): ScoredField | null {
-  return (
-    scoreSchool(schoolId).find((row) => row.fieldName === fieldName) ?? null
-  );
+  return fieldScores(schoolId, fieldName)[0] ?? null;
+}
+
+export function sourcesForSchool(schoolId: number) {
+  const seen = new Set<string>();
+  const sources: Array<{
+    name: string;
+    status: string;
+    sourceDate: string;
+    fieldName: string;
+  }> = [];
+  for (const claim of claimsForSchool(schoolId)) {
+    const key = `${claim.source_name}|${claim.source_date}|${claim.field_name}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    sources.push({
+      name: claim.source_name,
+      status: claim.status,
+      sourceDate: claim.source_date,
+      fieldName: claim.field_name,
+    });
+  }
+  return sources;
 }
 
 export function emptyFieldScore(fieldName: string): ScoredField {

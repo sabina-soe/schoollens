@@ -32,7 +32,7 @@ export function ConfidenceBadge({
     <div
       className={cn(
         "inline-flex flex-wrap items-center gap-2 rounded-lg bg-muted/60",
-        compact ? "min-h-9 px-2 py-1" : "min-h-11 px-3 py-2",
+        compact ? "min-h-11 px-2 py-1" : "min-h-11 px-3 py-2",
         className,
       )}
       role="status"
